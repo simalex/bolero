@@ -92,27 +92,38 @@ namespace bolero {
 
       double startSigma = 1.0;
 
+      for(int i=0; i<dimension; ++i) {
+        xstart[i] = 0.5;
+      }
+
       if(config != "")
       {
         ConfigMap map = ConfigMap::fromYamlString(config);
 
         if(map.hasKey("Optimizer")) {
-            ConfigMap &m = map["Optimizer"];
-            if(!lambda) {
-            lambda = m.get("PopulationSize", lambda);
+          ConfigMap &m = map["Optimizer"];
+          if(!lambda) {
+          lambda = m.get("PopulationSize", lambda);
+          }
+          logIndividual = m.get("LogIndividual", false);
+          logGeneration = m.get("LogGeneration", false);
+          logBest = m.get("LogBest", false);
+          reinitSigma = m.get("ReinitSigma", -1.);
+          sigmaThreshold = m.get("SigmaThreshold", -1.);
+          startSigma = m.get("StartSigma",1.0);
+          if(m.hasKey("StartParameters")) {
+            if(dimension == m["StartParameters"].size()) {
+              unsigned int count = 0;
+              for(ConfigVector::iterator it = m["StartParameters"].begin(); it != m["StartParameters"].end(); it++) {
+                xstart[count] = *it;
+                count++;
+              }
             }
-            logIndividual = m.get("LogIndividual", false);
-            logGeneration = m.get("LogGeneration", false);
-            logBest = m.get("LogBest", false);
-            reinitSigma = m.get("ReinitSigma", -1.);
-            sigmaThreshold = m.get("SigmaThreshold", -1.);
-            startSigma = m.get("StartSigma",1.0);
-
+          }
         }
       }
 
       for(int i=0; i<dimension; ++i) {
-        xstart[i] = 0.5;
         sigma[i] = startSigma;
       }
 
